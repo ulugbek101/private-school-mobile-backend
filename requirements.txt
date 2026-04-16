@@ -1,0 +1,12 @@
+asgiref==3.11.1
+Django==6.0.4
+django-phonenumber-field==8.4.0
+djangorestframework==3.17.1
+environs==15.0.1
+gunicorn==25.3.0
+marshmallow==4.3.0
+packaging==26.1
+phonenumbers==9.0.28
+psycopg2-binary==2.9.11
+python-dotenv==1.2.2
+sqlparse==0.5.5
