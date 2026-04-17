@@ -15,7 +15,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     first_name = models.CharField(verbose_name=_("Имя"), max_length=50)
     last_name = models.CharField(verbose_name=_("Фамилия"), max_length=50)
-    middle_name = models.CharField(verbose_name=_("Отчество"), max_length=50)
+    middle_name = models.CharField(verbose_name=_("Отчество"), max_length=50, null=True, blank=True)
     email = models.EmailField(verbose_name=_("E-mail адрес"), null=True, blank=True)
     phone_number = PhoneNumberField(verbose_name=_("Номер телефона"), unique=True)
     role = models.CharField(verbose_name=_("Статус сотрудника"), choices=UserRoles.choices)
@@ -39,6 +39,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return f"{self.first_name} {self.last_name} {self.middle_name}"
 
+    def save(self, *args, **kwargs):
+        if not self.id and self.password:
+            user = super().save(*args, **kwargs)
+            user.set_password(self.password)
+        return super().save(*args, **kwargs)
+
     class Meta:
         ordering = ["-created"]
         verbose_name = _("Пользователь")
@@ -53,10 +59,11 @@ class Student(models.Model):
 
     first_name = models.CharField(verbose_name=_("Имя"), max_length=50)
     last_name = models.CharField(verbose_name=_("Фамилия"), max_length=50)
-    middle_name = models.CharField(verbose_name=_("Отчество"), max_length=50)
+    middle_name = models.CharField(verbose_name=_("Отчество"), max_length=50, null=True, blank=True)
     email = models.EmailField(verbose_name=_("E-mail адрес"), null=True, blank=True)
     birthday = models.DateField(verbose_name=_("День рождения"), null=True, blank=True)
     phone_number = PhoneNumberField(verbose_name=_("Номер телефона"), unique=True)
+    student_class = models.ForeignKey(verbose_name=_("Класс студента"), to="Class", on_delete=models.PROTECT)
     created = models.DateTimeField(verbose_name=_("Дата создания"), auto_now_add=True)
     updated = models.DateTimeField(verbose_name=_("Дата обновления"), auto_now=True)
 
@@ -81,7 +88,6 @@ class Class(models.Model):
 
     name = models.CharField(verbose_name=_("Название класса"), max_length=50, unique=True)
     teacher = models.ForeignKey(verbose_name=_("Преподаватель"), to=User, help_text=_("Кто будет преподавать этому классу"), on_delete=models.PROTECT)
-    students = models.ManyToManyField(verbose_name=_("Студенты"), to=Student)
     created = models.DateTimeField(verbose_name=_("Дата создания"), auto_now_add=True)
     updated = models.DateTimeField(verbose_name=_("Дата обновления"), auto_now=True)
 

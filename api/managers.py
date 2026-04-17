@@ -6,7 +6,7 @@ from api.enums import UserRoles
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, first_name: str, last_name: str, middle_name: str, phone_number: str, password: str = None, **extra_fields) -> type[AbstractUser]:
+    def create_user(self, first_name: str, last_name: str, middle_name: str, phone_number: str, password: str = None, **extra_fields) -> AbstractUser:
         """
         Method to create a user
         """
@@ -23,8 +23,10 @@ class UserManager(BaseUserManager):
         if not phone_number:
             raise ValidationError("User must have an phone number")
 
-        if extra_fields.get("email"):
-            email = self.normalize_email(email=email)
+        # normalize email
+        email = extra_fields.get("email")
+        if email:
+            extra_fields["email"] = self.normalize_email(email)
 
         user = self.model(
             first_name=first_name,
@@ -34,21 +36,37 @@ class UserManager(BaseUserManager):
             **extra_fields,
         )
 
-        user.set_password(raw_password=password)
-        user.save()
+        if password:
+            user.set_password(password)
+        else:
+            user.set_unusable_password()
 
+        user.save(using=self._db)
         return user
 
 
-    def create_superuser(self, first_name: str, last_name: str, middle_name: str, phone_number: str, password: str, **extra_fields) -> type[AbstractUser]:
+    def create_superuser(self, first_name: str, last_name: str, middle_name: str, phone_number: str, password: str, **extra_fields) -> AbstractUser:
         """
         Method to create a superuser
         """
 
-        superuser = self.create_user(first_name, last_name, middle_name, phone_number, password, **extra_fields)
-        superuser.is_superuser = True
-        superuser.is_staff = True
-        superuser.role = UserRoles.SUPERUSER
-        superuser.save()
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_superuser", True)
+        extra_fields.setdefault("role", UserRoles.SUPERUSER)
 
-        return superuser
+        if extra_fields.get("is_staff") is not True:
+            raise ValueError("Superuser must have is_staff=True")
+
+        if extra_fields.get("is_superuser") is not True:
+            raise ValueError("Superuser must have is_superuser=True")
+
+        user = self.create_user(
+            first_name,
+            last_name,
+            middle_name,
+            phone_number,
+            password,
+            **extra_fields
+        )
+
+        return user
