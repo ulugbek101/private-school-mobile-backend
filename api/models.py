@@ -99,13 +99,13 @@ class Payment(models.Model):
     Model to represent Student payment made for a certain Class for a certain month of a certain year
     """
 
-    student = models.ForeignKey(verbose_name=_("Студент"), to=Student, on_delete=models.SET_NULL)
+    student = models.ForeignKey(verbose_name=_("Студент"), to=Student, on_delete=models.SET_NULL, null=True)
     _student = models.CharField(verbose_name=_("ФИО удаленного студента"), help_text=_("Поле заполнится автоматически при удалении студента, для сохранения данных студента - для вывода чека"), null=True, blank=True)
-    class_object = models.ForeignKey(verbose_name=_("Класс"), to=Class, on_delete=models.SET_NULL)
+    class_object = models.ForeignKey(verbose_name=_("Класс"), to=Class, on_delete=models.SET_NULL, null=True)
     _class_object = models.CharField(verbose_name=_("Наименование удаленного класса"), help_text=_("Поле заполнится автоматически при удалении класса, для сохранения данных класса - для вывода чека"), null=True, blank=True)
     amount = models.DecimalField(verbose_name=_("Сумма"), max_digits=12, decimal_places=2)
     month = models.CharField(verbose_name=_("Месяц, для которого заносится оплата"), choices=Months)
-    created_by = models.ForeignKey(verbose_name=_("Сотрудник, занесший оплату в систему"), to=User, on_delete=models.SET_NULL)
+    created_by = models.ForeignKey(verbose_name=_("Сотрудник, занесший оплату в систему"), to=User, on_delete=models.SET_NULL, null=True)
     _created_by = models.CharField(verbose_name=_("ФИО сотрудника, занесший оплату в систему"), help_text=_("Поле заполнится автоматически при удалении сотрудника, для сохранения данных этого сотрудника - для вывода чека"), null=True, blank=True)
     created = models.DateTimeField(verbose_name=_("Дата создания"), auto_now_add=True)
     updated = models.DateTimeField(verbose_name=_("Дата обновления"), auto_now=True)
@@ -146,11 +146,11 @@ class Expense(models.Model):
     Model to represent the expense itself, made by organization
     """
 
-    category = models.ForeignKey(verbose_name=_("Категория затраты"), to=ExpenseCategory, on_delete=models.SET_NULL)
-    _category = models.ForeignKey(verbose_name=_("Наименование категории затраты"), help_text=_("Это поле заполнится автоматически при удалении категории затраты"), null=True, blank=True)
+    category = models.ForeignKey(verbose_name=_("Категория затраты"), to=ExpenseCategory, on_delete=models.SET_NULL, null=True)
+    _category = models.CharField(verbose_name=_("Наименование категории затраты"), help_text=_("Это поле заполнится автоматически при удалении категории затраты"), null=True, blank=True)
     amount = models.DecimalField(verbose_name=_("Сумма"), max_digits=12, decimal_places=2)
     description = models.TextField(verbose_name=_("Описание затраты"), null=True, blank=True)
-    created_by = models.ForeignKey(verbose_name=_("Сотрудник, занесший затрату в систему"), to=User, on_delete=models.SET_NULL)
+    created_by = models.ForeignKey(verbose_name=_("Сотрудник, занесший затрату в систему"), to=User, on_delete=models.SET_NULL, null=True)
     _created_by = models.CharField(verbose_name=_("ФИО сотрудника, занесший затрату в систему"), help_text=_("Поле заполнится автоматически при удалении сотрудника, для сохранения данных этого сотрудника - для вывода чека"), null=True, blank=True)
     created = models.DateTimeField(verbose_name=_("Дата создания"), auto_now_add=True)
     updated = models.DateTimeField(verbose_name=_("Дата обновления"), auto_now=True)
