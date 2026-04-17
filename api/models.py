@@ -69,8 +69,8 @@ class Student(models.Model):
 
     class Meta:
         ordering = ["-created"]
-        verbose_name = "Студент"
-        verbose_name_plural = "Студенты"
+        verbose_name = _("Студент")
+        verbose_name_plural = _("Студенты")
         unique_together = ["first_name", "last_name", "middle_name"]
 
 
@@ -90,8 +90,8 @@ class Class(models.Model):
 
     class Meta:
         ordering = ["-created"]
-        verbose_name = "Класс"
-        verbose_name_plural = "Классы"
+        verbose_name = _("Класс")
+        verbose_name_plural = _("Классы")
 
 
 class Payment(models.Model):
@@ -119,5 +119,54 @@ class Payment(models.Model):
 
     class Meta:
         ordering = ["-created"]
-        verbose_name = "Класс"
-        verbose_name_plural = "Классы"
+        verbose_name = _("Оплата")
+        verbose_name_plural = _("Оплаты")
+
+
+class ExpenseCategory(models.Model):
+    """
+    Model to represent the type of expense
+    """
+
+    name = models.CharField(verbose_name=_("Название затраты"), max_length=100)
+    created = models.DateTimeField(verbose_name=_("Дата создания"), auto_now_add=True)
+    updated = models.DateTimeField(verbose_name=_("Дата обновления"), auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ["-created"]
+        verbose_name = _("Тип затраты")
+        verbose_name_plural = _("Типы затрат")
+
+
+class Expense(models.Model):
+    """
+    Model to represent the expense itself, made by organization
+    """
+
+    category = models.ForeignKey(verbose_name=_("Категория затраты"), to=ExpenseCategory, on_delete=models.SET_NULL)
+    _category = models.ForeignKey(verbose_name=_("Наименование категории затраты"), help_text=_("Это поле заполнится автоматически при удалении категории затраты"), null=True, blank=True)
+    amount = models.DecimalField(verbose_name=_("Сумма"), max_digits=12, decimal_places=2)
+    description = models.TextField(verbose_name=_("Описание затраты"), null=True, blank=True)
+    created_by = models.ForeignKey(verbose_name=_("Сотрудник, занесший затрату в систему"), to=User, on_delete=models.SET_NULL)
+    _created_by = models.CharField(verbose_name=_("ФИО сотрудника, занесший затрату в систему"), help_text=_("Поле заполнится автоматически при удалении сотрудника, для сохранения данных этого сотрудника - для вывода чека"), null=True, blank=True)
+    created = models.DateTimeField(verbose_name=_("Дата создания"), auto_now_add=True)
+    updated = models.DateTimeField(verbose_name=_("Дата обновления"), auto_now=True)
+
+    def __str__(self):
+        category_name = self._category
+        if self.category:
+            category_name = self.category.name
+
+        created_staff = self._created_by
+        if self.created_by:
+            created_staff = self.created_by.get_full_name()
+
+        return f"{self.amount} - {category_name} - {created_staff} - {self.created}"
+
+    class Meta:
+        ordering = ["-created"]
+        verbose_name = _("Затрата")
+        verbose_name_plural = _("Затраты")
