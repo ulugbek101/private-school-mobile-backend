@@ -55,7 +55,7 @@ class Student(models.Model):
     last_name = models.CharField(verbose_name=_("Фамилия"), max_length=50)
     middle_name = models.CharField(verbose_name=_("Отчество"), max_length=50)
     email = models.EmailField(verbose_name=_("E-mail адрес"), null=True, blank=True)
-    born_year = models.IntegerField(verbose_name=_("Год рождения"), null=True, blank=True)
+    birthday = models.DateField(verbose_name=_("День рождения"), null=True, blank=True)
     phone_number = PhoneNumberField(verbose_name=_("Номер телефона"), unique=True)
     created = models.DateTimeField(verbose_name=_("Дата создания"), auto_now_add=True)
     updated = models.DateTimeField(verbose_name=_("Дата обновления"), auto_now=True)
