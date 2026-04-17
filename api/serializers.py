@@ -1,4 +1,12 @@
+from django.contrib.auth import get_user_model
+
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework.serializers import ModelSerializer
+
+from api.models import Class, Student
+
+
+User = get_user_model()
 
 
 class TokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -19,3 +27,24 @@ class TokenObtainPairSerializer(TokenObtainPairSerializer):
         token['updated'] = user.updated.isoformat()
 
         return token
+
+
+class UserSerializer(ModelSerializer):
+    class Meta:
+        model = User
+        fields = "__all__"
+
+
+class StudentSerializer(ModelSerializer):
+    class Meta:
+        model = Student
+        fields = "__all__"
+
+
+class ClassSerializer(ModelSerializer):
+    teacher = UserSerializer(many=False)
+    students = StudentSerializer(many=True)
+
+    class Meta:
+        model = Class
+        fields = "__all__"
