@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 
 from phonenumber_field.modelfields import PhoneNumberField
 
-from api.enums import UserRoles
+from api.enums import UserRoles, Months
 from api.managers import UserManager
 
 
@@ -44,3 +44,80 @@ class User(AbstractBaseUser, PermissionsMixin):
         verbose_name = _("Пользователь")
         verbose_name_plural = _("Пользователи")
         unique_together = ["first_name", "last_name", "middle_name"]
+
+
+class Student(models.Model):
+    """
+    Model to represent a Student object
+    """
+
+    first_name = models.CharField(verbose_name=_("Имя"), max_length=50)
+    last_name = models.CharField(verbose_name=_("Фамилия"), max_length=50)
+    middle_name = models.CharField(verbose_name=_("Отчество"), max_length=50)
+    email = models.EmailField(verbose_name=_("E-mail адрес"), null=True, blank=True)
+    born_year = models.IntegerField(verbose_name=_("Год рождения"), null=True, blank=True)
+    phone_number = PhoneNumberField(verbose_name=_("Номер телефона"), unique=True)
+    created = models.DateTimeField(verbose_name=_("Дата создания"), auto_now_add=True)
+    updated = models.DateTimeField(verbose_name=_("Дата обновления"), auto_now=True)
+
+    @property
+    def fullname(self):
+        return self.__str__()
+
+    def __str__(self):
+        return f"{self.first_name} {self.last_name} {self.middle_name}"
+
+    class Meta:
+        ordering = ["-created"]
+        verbose_name = "Студент"
+        verbose_name_plural = "Студенты"
+        unique_together = ["first_name", "last_name", "middle_name"]
+
+
+class Class(models.Model):
+    """
+    Model to represent a Class object
+    """
+
+    name = models.CharField(verbose_name=_("Название класса"), max_length=50, unique=True)
+    teacher = models.ForeignKey(verbose_name=_("Преподаватель"), to=User, help_text=_("Кто будет преподавать этому классу"), on_delete=models.PROTECT)
+    students = models.ManyToManyField(verbose_name=_("Студенты"), to=Student)
+    created = models.DateTimeField(verbose_name=_("Дата создания"), auto_now_add=True)
+    updated = models.DateTimeField(verbose_name=_("Дата обновления"), auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ["-created"]
+        verbose_name = "Класс"
+        verbose_name_plural = "Классы"
+
+
+class Payment(models.Model):
+    """
+    Model to represent Student payment made for a certain Class for a certain month of a certain year
+    """
+
+    student = models.ForeignKey(verbose_name=_("Студент"), to=Student, on_delete=models.SET_NULL)
+    _student = models.CharField(verbose_name=_("ФИО удаленного студента"), help_text=_("Поле заполнится автоматически при удалении студента, для сохранения данных студента - для вывода чека"), null=True, blank=True)
+    class_object = models.ForeignKey(verbose_name=_("Класс"), to=Class, on_delete=models.SET_NULL)
+    _class_object = models.CharField(verbose_name=_("Наименование удаленного класса"), help_text=_("Поле заполнится автоматически при удалении класса, для сохранения данных класса - для вывода чека"), null=True, blank=True)
+    amount = models.DecimalField(verbose_name=_("Сумма"), max_digits=12, decimal_places=2)
+    month = models.CharField(verbose_name=_("Месяц, для которого заносится оплата"), choices=Months)
+    created_by = models.ForeignKey(verbose_name=_("Сотрудник, занесший оплату в систему"), to=User, on_delete=models.SET_NULL)
+    _created_by = models.CharField(verbose_name=_("ФИО сотрудника, занесший оплату в систему"), help_text=_("Поле заполнится автоматически при удалении сотрудника, для сохранения данных этого сотрудника - для вывода чека"), null=True, blank=True)
+    created = models.DateTimeField(verbose_name=_("Дата создания"), auto_now_add=True)
+    updated = models.DateTimeField(verbose_name=_("Дата обновления"), auto_now=True)
+
+    def __str__(self):
+        student_name = self._student
+        if self.student:
+            student_name = self.student.fullname
+
+        return f"{student_name} - {self.get_month_display()} - {self.amount}"
+
+    class Meta:
+        ordering = ["-created"]
+        verbose_name = "Класс"
+        verbose_name_plural = "Классы"
