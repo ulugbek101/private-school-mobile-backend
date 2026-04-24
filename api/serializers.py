@@ -112,6 +112,29 @@ class UserSerializer(ModelSerializer):
         return instance
 
 
+
+class SimpleStudentSerializer(ModelSerializer):
+    """
+    Serializer for simple student data without student_class key to add student to class's data
+    """
+
+    class Meta:
+        model = Student
+        fields = "__all__"
+
+    def to_representation(self, instance):
+        """
+        Remove student_class key from student's data
+        """
+
+        representation = super().to_representation(instance)
+
+        if "student_class" in representation.keys():
+            representation.pop("student_class")
+
+        return representation
+
+
 class StudentSerializer(ModelSerializer):
     """
     Serializer for the Student model.
@@ -170,4 +193,5 @@ class ClassSerializer(ModelSerializer):
 
         representation = super().to_representation(instance)
         representation["teacher"] = UserSerializer(instance.teacher).data
+        representation["students"] = SimpleStudentSerializer(instance.student_set.all(), many=True).data
         return representation
