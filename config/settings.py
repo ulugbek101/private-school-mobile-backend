@@ -25,6 +25,9 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
 
     'api',
+
+    'app_main',
+    'app_users',
 ]
 
 MIDDLEWARE = [
@@ -42,7 +45,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [ BASE_DIR / 'templates' ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -101,6 +104,7 @@ USE_TZ = True
 os.makedirs(name='static', exist_ok=True)
 os.makedirs(name='staticfiles', exist_ok=True)
 os.makedirs(name='media', exist_ok=True)
+os.makedirs(name='templates', exist_ok=True)
 
 STATICFILES_DIRS = [BASE_DIR / 'staticfiles']
 
