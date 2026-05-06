@@ -45,6 +45,12 @@ class User(AbstractBaseUser, PermissionsMixin):
         verbose_name=_("Номер телефона"),
         unique=True,
     )
+    profile_image = models.ImageField(
+        verbose_name=_("Фото профиля"),
+        upload_to="staffs/",
+        null=True,
+        blank=True,
+    )
     role = models.CharField(
         verbose_name=_("Статус сотрудника"),
         choices=UserRoles.choices,
@@ -139,6 +145,12 @@ class Student(models.Model):
     phone_number = PhoneNumberField(
         verbose_name=_("Номер телефона"),
         unique=True,
+    )
+    profile_image = models.ImageField(
+        verbose_name=_("Фото профиля"),
+        upload_to="students/",
+        null=True,
+        blank=True,
     )
     student_class = models.ForeignKey(
         verbose_name=_("Класс студента"),

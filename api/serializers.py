@@ -41,6 +41,7 @@ class TokenObtainPairSerializer(BaseTokenObtainPairSerializer):
         token["middle_name"] = user.middle_name
         token["email"] = user.email
         token["phone_number"] = f"{user.phone_number}"
+        token["profile_image"] = user.profile_image.url if user.profile_image else None
         token["role"] = user.role
         token["is_superuser"] = user.is_superuser
         token["is_staff"] = user.is_staff
